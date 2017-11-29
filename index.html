@@ -19,7 +19,6 @@
         <link href="style.css" rel="stylesheet" type="text/css" media="all">
 	</head>
 
-
 	<body id="body" ng-controller="GetDataGitHub" ng-init="getGitInfo()" onscroll="myFunction()">
         <header class="trans">
         	<div class="wrapper">
@@ -33,7 +32,6 @@
                     </div>
                     <h5>Procurar Usuário</h5>
                     <input id="procurarusuario" type="text" ng-model="username">
-
                     <input type="button" ng-click="getGitInfo();" value="Buscar" class="trans">
                 </div>
             </div>
@@ -43,8 +41,9 @@
         
         <div class="wrapper">
         
+        	<!-- RECIPIENTE PARA OS DADOS DO USUÁRIO -->
             <aside class="left">
-                <div ng-show="UserFound" class="hide-me trans"><!-- Dados do Usuário -->
+                <div ng-show="UserFound" class="hide-me trans">
                     <a href="{{ user.html_url }}" target="_blank">
                         <img src="{{ user.avatar_url }}" alt="{{ user.login }}" class="profile circle left">
                     </a>
@@ -117,21 +116,25 @@
                     <div class="clear"></div>
                 </div>
             </aside>
-        
+        	
+            <!-- RECIPIENTE PARA OS REPOSITÓRIOS -->
             <main class="right">
-                <!-- EXIBIR MENSAGEM SE USUÁRIO NÃO FOR ENCONTRADO -->
+                
+                <!-- EXIBEIR MENSAGEM SE USUÁRIO NÃO FOR ENCONTRADO -->
                 <div ng-show="UserNotFound" class="hide-me trans">
                     <h4>Usuário Não Encontrado</h4>
                     <p>Faça outra busca, por favor.</p>
                 </div>
                 
+                <!-- EXIBE MENSAGEM SE USUÁRIO NÃO POSSUIR REPOSITÓRIOS -->
                 <div ng-show="!reposFound" class="hide-me trans">
                     <h4>O usuário não possui nenhum repositório cadastrado</h4>
                 </div>
                 
-                <!-- Div que Contêm as pesquisas -->
-                <div ng-show="reposFound" class="hide-me trans"><!--Lista dos Repositórios -->
-
+                <!-- LISTA DE REPOSITÓRIOS -->
+                <div ng-show="reposFound" class="hide-me trans">
+					
+                    <!-- FILTROS PARA REPOSITÓRIOS -->
                     <div class="sort right">
                     	<div class="sort-name">
                             <div class="sort-click" ng-click="sortBy('name')">
@@ -209,7 +212,8 @@
 
             </main>
         </div>
-
+		
+        <!-- SCRIPTS ADICIONADOS NO FINAL DA PÁGINA PARA CARREGAMENTO MAIS RÁPIDO -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
         <script src="https://use.fontawesome.com/34d31e1db7.js"></script>
@@ -219,9 +223,10 @@
 			var app = angular.module("myApp", []);
 
         	app.controller('GetDataGitHub', GetDataGitHub);
-			// A seguir as APIs são consumidas
+			// FUNÇÃO QUE CONSOME AS APIs
             function GetDataGitHub($scope, $http) {
-				// No trecho a seguir setamos a div onde se encontra "usuário não encontrado" em standby.
+				
+				// RESETA AS DIVS ANTES DA PESQUISA
                 $scope.getGitInfo = function () {
                 	$scope.UserNotFound = false;
                 	$scope.UserFound = false;
@@ -230,7 +235,7 @@
 						data == null
 					};
 					
-					// getGitInfo consulta o Github api para informações de usuários e repositórios públicos
+					// PEGA AS INFORMÇÕES DO USUÁRIO PESQUISADO
                 	$http.get("https://api.github.com/users/" + $scope.username).success(function(data) {
 						$scope.user = data;
 						$scope.UserFound = true
@@ -239,7 +244,7 @@
 						$scope.ReposNotFound = true;
 					});
         
-					// A seguir, as informações sobre os repositorios do usuario são obtidos
+					// PEGA AS INFORMÇÕES DOS REPOSÍTIOS DO USUÁRIO PESQUISADO
 					$http.get("https://api.github.com/users/" + $scope.username + "/repos").success(function (data) {
 						$scope.repos = data;
 						$scope.reposFound = data.length > 0;
@@ -247,16 +252,17 @@
 						$scope.ReposNotFound = true;
 					});
 					
+					// SE A PESQUISA FOR BEM SUCEDIDA ADICIONA UMA CLASS NA BODY
 					var myEl = angular.element(document.querySelector('#body'));
 					myEl.addClass('searched');
 				};
 				
+				// FUNÇÃO DOS FILTROS
 				$scope.sortBy = function(propertyName) {
 					$scope.propertyName = propertyName;
 			  	};
             };
 		</script>
-        
-        
+
 	</body>
 </html>
