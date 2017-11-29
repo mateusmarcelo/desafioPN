@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html ng-app="myApp">
+	<head>
+        <meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="">
+        <meta name="language" content="pt-BR">
+
+        <title>PetNativa - Consultar Cliente</title>
+        
+        <link rel="icon" type="image/png" href="favicon.png" />
+        <link rel="icon" type="image/x-icon" href="favicon.png" />
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="favicon.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="favicon.png">
+        <link rel="apple-touch-icon-precomposed" href="favicon.png">
+        
+        <link href="https://fonts.googleapis.com/css?family=PT+Sans" rel="stylesheet">    
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css" rel="stylesheet">
+        <link href="style.css" rel="stylesheet" type="text/css" media="all">
+	</head>
+
+
+	<body id="body" ng-controller="GetDataGitHub" ng-init="getGitInfo()" onscroll="myFunction()">
+        <header class="trans">
+        	<div class="wrapper">
+                <div class="logo trans">
+                    <img src="logo.png" />
+                </div>
+                
+                <div class="search-box">
+                	<div class="icon-user">
+                    	<i class="fa fa-user-circle-o" aria-hidden="true"></i>
+                    </div>
+                    <h5>Procurar Usuário</h5>
+                    <input id="procurarusuario" type="text" ng-model="username">
+
+                    <input type="button" ng-click="getGitInfo();" value="Buscar" class="trans">
+                </div>
+            </div>
+        </header>
+        
+        <div class="space"></div>
+        
+        <div class="wrapper">
+        
+            <aside class="left">
+                <div ng-show="UserFound" class="hide-me trans"><!-- Dados do Usuário -->
+                    <a href="{{ user.html_url }}" target="_blank">
+                        <img src="{{ user.avatar_url }}" alt="{{ user.login }}" class="profile circle left">
+                    </a>
+                    
+                    <div class="user-numbers left">
+                        <div class="user">
+                            <span class="name">{{user.name}}</span>
+                            <span class="login">@{{user.login}}</span>
+                        </div>
+        
+                        <div class="numbers">
+                            <div class="row">
+                                <div class="col s4" title="Seguidores">
+                                    <i class="fa fa-users" aria-hidden="true"></i>
+                                </div>
+                                <div class="col s4" title="Seguindo">
+                                    <i class="fa fa-user-plus" aria-hidden="true"></i>
+                                </div>
+                                <div class="col s4" title="Repositórios">
+                                    <i class="fa fa-folder-open" aria-hidden="true"></i>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col s4">
+                                    <span class="number">{{ user.followers }}</span>
+                                </div>
+                                <div class="col s4">
+                                    <span class="number">{{ user.following }}</span>
+                                </div>
+                                <div class="col s4">
+                                    <span class="number">{{ user.public_repos }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="clear"></div>
+                    
+                    <div class="more-data-bio" ng-click="moreinfo = !moreinfo">
+                        mais informações +
+                    </div>
+                    
+                    <div class="data-bio" ng-class="moreinfo ? 'selected' : 'notselected'">
+                        <div class="data">
+                            <div ng-show="user.location != null">
+                            	<i class="fa fa-map-marker" aria-hidden="true"></i> {{user.location}}
+                            </div>
+                            
+                            <div ng-show="user.email != null">
+                                <i class="fa fa-envelope" aria-hidden="true"></i> {{user.email}}
+                            </div>
+                            
+                            <div class="row" ng-show="user.id != null">
+                                <i class="fa fa-id-card" aria-hidden="true"></i> {{user.id}}
+                            </div>
+                        </div>
+                        
+                        <hr ng-show="user.bio != null || user.company != null">
+                        
+                        <div class="bio">
+                            <div ng-show="user.company != null">
+                                <strong>Empresa:</strong> {{user.company}}
+                            </div>
+                            <div ng-show="user.bio != null">
+                                <strong>Bio:</strong> {{user.bio}}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="clear"></div>
+                </div>
+            </aside>
+        
+            <main class="right">
+                <!-- EXIBIR MENSAGEM SE USUÁRIO NÃO FOR ENCONTRADO -->
+                <div ng-show="UserNotFound" class="hide-me trans">
+                    <h4>Usuário Não Encontrado</h4>
+                    <p>Faça outra busca, por favor.</p>
+                </div>
+                
+                <div ng-show="!reposFound" class="hide-me trans">
+                    <h4>O usuário não possui nenhum repositório cadastrado</h4>
+                </div>
+                
+                <!-- Div que Contêm as pesquisas -->
+                <div ng-show="reposFound" class="hide-me trans"><!--Lista dos Repositórios -->
+
+                    <div class="sort right">
+                    	<div class="sort-name">
+                            <div class="sort-click" ng-click="sortBy('name')">
+                                <i class="fa fa-sort-alpha-asc" aria-hidden="true"></i>
+                            </div>
+                            <div class="sort-click" ng-click="sortBy('-name')">
+                                <i class="fa fa-sort-alpha-desc" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        <div class="sort-watch">                        
+                            <div class="sort-click" ng-click="sortBy('-watchers_count')">
+                                <i class="fa fa-long-arrow-up" aria-hidden="true"></i>
+                            </div>
+                            <i class="fa fa-eye icone" aria-hidden="true"></i>
+                            <div class="sort-click" ng-click="sortBy('watchers_count')">
+                                <i class="fa fa-long-arrow-down" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        <div class="sort-star"> 
+                            <div class="sort-click" ng-click="sortBy('-stargazers_count')">
+                                <i class="fa fa-long-arrow-up" aria-hidden="true"></i>
+                            </div>
+                            <i class="fa fa-star icone" aria-hidden="true"></i>
+                            <div class="sort-click" ng-click="sortBy('stargazers_count')">
+                                <i class="fa fa-long-arrow-down" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                        <div class="sort-fork"> 
+                            <div class="sort-click" ng-click="sortBy('-forks_count')">
+                                <i class="fa fa-long-arrow-up" aria-hidden="true"></i>
+                            </div>
+                            <i class="fa fa-code-fork icone" aria-hidden="true"></i>
+                            <div class="sort-click" ng-click="sortBy('forks_count')">
+                                <i class="fa fa-long-arrow-down" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="clear"></div>
+
+                    <div id="{{repo.id}}" class="public-repos" ng-repeat="repo in repos | orderBy:propertyName" ng-class="select ? 'icon-selected' : 'icon-select'">
+                    	<div class="title">
+                            <div class="see-more left" ng-click="select = !select">
+                                <i class="fa fa-angle-down trans" aria-hidden="true"></i>
+                            </div>
+                            <div class="repos-name left">
+                                {{repo.name}}
+                            </div>
+                            
+                            <div class="watch left">
+                                <i class="fa fa-eye" aria-hidden="true"></i> {{repo.watchers_count}}
+                            </div>
+                            
+                            <div class="star left">
+                                <i class="fa fa-star" aria-hidden="true"></i> {{repo.stargazers_count}}
+                            </div>
+                            
+                            <div class="fork left">
+                                <i class="fa fa-code-fork" aria-hidden="true"></i> {{repo.forks_count}}
+                            </div>
+                            <div class="link left">
+                                <a href="{{repo.html_url}}" target="_blank">
+                                	<i class="fa fa-link" aria-hidden="true"></i>
+                                </a>
+                            </div>
+                            <div class="clear"></div>
+                        </div>
+
+                    	<div class="content">
+                            <a href="{{repo.html_url}}" target="_blank"><h4>{{repo.full_name}}</h4></a>
+                            <p>{{repo.description}}</p>
+                            <strong>Liguagem usada:</strong> {{repo.language}} || <strong>Criado em:</strong> {{repo.created_at}}
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+        <script src="https://use.fontawesome.com/34d31e1db7.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+
+        <script>
+			var app = angular.module("myApp", []);
+
+        	app.controller('GetDataGitHub', GetDataGitHub);
+			// A seguir as APIs são consumidas
+            function GetDataGitHub($scope, $http) {
+				// No trecho a seguir setamos a div onde se encontra "usuário não encontrado" em standby.
+                $scope.getGitInfo = function () {
+                	$scope.UserNotFound = false;
+                	$scope.UserFound = false;
+					$scope.ReposNotFound = false;
+					if ($scope.username == null) {
+						data == null
+					};
+					
+					// getGitInfo consulta o Github api para informações de usuários e repositórios públicos
+                	$http.get("https://api.github.com/users/" + $scope.username).success(function(data) {
+						$scope.user = data;
+						$scope.UserFound = true
+					}).error(function () {
+						$scope.UserNotFound = true;
+						$scope.ReposNotFound = true;
+					});
+        
+					// A seguir, as informações sobre os repositorios do usuario são obtidos
+					$http.get("https://api.github.com/users/" + $scope.username + "/repos").success(function (data) {
+						$scope.repos = data;
+						$scope.reposFound = data.length > 0;
+					}).error(function () {
+						$scope.ReposNotFound = true;
+					});
+					
+					var myEl = angular.element(document.querySelector('#body'));
+					myEl.addClass('searched');
+				};
+				
+				$scope.sortBy = function(propertyName) {
+					$scope.propertyName = propertyName;
+			  	};
+            };
+		</script>
+        
+        
+	</body>
+</html>
